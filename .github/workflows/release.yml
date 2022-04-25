@@ -32,14 +32,25 @@ jobs:
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
-          
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y.%m.%d')"
+
+      - name: Create a Release
+        id: release
+        uses: elgohr/Github-Release-Action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          title: telereto-${{ steps.date.outputs.date }}
+
       - name: Uploading assets...
-        if: ${{ !env.ACT }}
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ github.event.release.upload_url }}
+          upload_url: ${{ steps.release.outputs.upload_url }}
           asset_path: ./telereto-${{ matrix.goos }}-${{ matrix.goarch }}
           asset_name: telereto-${{ matrix.goos }}-${{ matrix.goarch }}
