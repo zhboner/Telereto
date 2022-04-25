@@ -1,0 +1,10 @@
+bot_server:
+  schema: https
+  host: example.com
+  listen: 127.0.0.1:8443
+  apiKey: 123456768990
+
+chevereto_server:
+  schema: https
+  host: chevereto.example.com
+  apiKey: 1234567687123
