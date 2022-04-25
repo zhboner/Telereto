@@ -1,0 +1,46 @@
+name: release
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  release:
+    if: startsWith(github.ref, 'refs/tags/') # 只有这次 Commit 是 创建 Tag 时，才进行后续发布操作
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goarch: amd64
+            goos: linux
+          - goarch: amd64
+            goos: darwin
+          - goarch: arm64
+            goos: linux
+          - goarch: arm64
+            goos: darwin
+
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with: 
+          go-version: 1.18
+          
+      - name: build
+        run: go build -o telereto-${{ matrix.goos }}-${{ matrix.goarch }}
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          
+      - name: Uploading assets...
+        if: ${{ !env.ACT }}
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./telereto-${{ matrix.goos }}-${{ matrix.goarch }}
+          asset_name: telereto-${{ matrix.goos }}-${{ matrix.goarch }}
