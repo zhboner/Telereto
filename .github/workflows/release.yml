@@ -35,22 +35,10 @@ jobs:
 
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y.%m.%d')"
+        run: echo "::set-output name=date::$(date +'%Y%m%d')"
 
-      - name: Create a Release
-        id: release
-        uses: elgohr/Github-Release-Action@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        with:
-          title: telereto-${{ steps.date.outputs.date }}
-
-      - name: Uploading assets...
+      - name: release
         id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./telereto-${{ matrix.goos }}-${{ matrix.goarch }}
-          asset_name: telereto-${{ matrix.goos }}-${{ matrix.goarch }}
+          files: ./telereto-${{ matrix.goos }}-${{ matrix.goarch }}
