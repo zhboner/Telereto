@@ -1,4 +1,4 @@
-module Telereto
+module telereto
 
 go 1.18
 
