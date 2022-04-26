@@ -5,6 +5,7 @@ import (
 	"golang.org/x/exp/slices"
 	tele "gopkg.in/telebot.v3"
 	"log"
+	"net/http"
 	"net/url"
 )
 
@@ -49,8 +50,21 @@ func main() {
 	}
 
 	bot.Handle(tele.OnText, func(context tele.Context) error {
-		// TODO: Text to image
+		// If a text is an url, try to fetch and upload that image.
+		text := context.Text()
+		parsed_url, err := url.ParseRequestURI(text)
+		if err != nil {
+			return context.Send("请上传一张图片")
+		}
 
+		url_string := parsed_url.String()
+		resp, err := http.Get(url_string)
+		if err != nil {
+			return context.Send("请上传一张图片")
+		}
+		if slices.Contains(ACCEPTABLE_TYPES, resp.Header.Get("Content-Type")) {
+			return context.Send(upload_photo(url_string))
+		}
 		return context.Send("请上传一张图片")
 	})
 
